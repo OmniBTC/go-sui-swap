@@ -13,7 +13,7 @@ const (
 )
 
 type Quoter interface {
-	GetAmountOut(inAsset Asset, outAsset Asset, inAmount *big.Int) (*big.Int, error)
+	GetAmountOut(pool Pool, inAsset Asset, outAsset Asset, inAmount *big.Int) (*big.Int, error)
 }
 
 type Asset interface {
@@ -35,5 +35,6 @@ type Provider interface {
 type Trade interface {
 	Path() []Asset
 	Pools() []Pool
-	AmountOut() *big.Int
+	AmountOuts() []*big.Int
+	A2B() []bool
 }

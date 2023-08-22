@@ -38,6 +38,6 @@ func (p *DeepBookPool) PoolType() types.SuiPoolType {
 	return types.PoolTypeDeepBook
 }
 
-func (p *DeepBookPool) GetAmountOut(inAsset types.Asset, outAsset types.Asset, inAmount *big.Int) (*big.Int, error) {
-	return p.quoter.GetAmountOut(inAsset, outAsset, inAmount)
+func (p *DeepBookPool) GetAmountOut(_ types.Pool, inAsset types.Asset, outAsset types.Asset, inAmount *big.Int) (*big.Int, error) {
+	return p.quoter.GetAmountOut(p, inAsset, outAsset, inAmount)
 }

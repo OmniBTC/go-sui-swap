@@ -29,6 +29,6 @@ func (p *cetusPool) CoinB() string {
 	return p.coinBAddress
 }
 
-func (p *cetusPool) GetAmountOut(inAsset types.Asset, outAsset types.Asset, inAmount *big.Int) (*big.Int, error) {
-	return p.config.Quoter.GetAmountOut(inAsset, outAsset, inAmount)
+func (p *cetusPool) GetAmountOut(_ types.Pool, inAsset types.Asset, outAsset types.Asset, inAmount *big.Int) (*big.Int, error) {
+	return p.config.Quoter.GetAmountOut(p, inAsset, outAsset, inAmount)
 }

@@ -8,16 +8,16 @@ import (
 )
 
 type innerTrade struct {
-	pools     []types.Pool
-	path      []types.Asset
-	isA2B     []bool
-	amountOut *big.Int
+	pools      []types.Pool
+	path       []types.Asset
+	isA2B      []bool
+	amountOuts []*big.Int
 
 	wg *sync.WaitGroup
 }
 
 func newTrade(pools []types.Pool, path []string, isA2B []bool, amountIn *big.Int, wg *sync.WaitGroup) types.Trade {
-	assets := make([]types.Asset, len(path))
+	assets := make([]types.Asset, 0, len(path))
 	for _, p := range path {
 		assets = append(assets, types.NewAsset(p))
 	}
@@ -36,13 +36,15 @@ func newTrade(pools []types.Pool, path []string, isA2B []bool, amountIn *big.Int
 func (t *innerTrade) asyncTradeAmountIn(amountIn *big.Int, wg *sync.WaitGroup) {
 	defer wg.Done()
 	var err error
+	amountOuts := make([]*big.Int, 0)
 	for i, p := range t.pools {
-		amountIn, err = p.GetAmountOut(t.path[i], t.path[i+1], amountIn)
+		amountIn, err = p.GetAmountOut(p, t.path[i], t.path[i+1], amountIn)
 		if err != nil {
 			return
 		}
+		amountOuts = append(amountOuts, amountIn)
 	}
-	t.amountOut = amountIn
+	t.amountOuts = amountOuts
 }
 
 func (t *innerTrade) Path() []types.Asset {
@@ -53,6 +55,10 @@ func (t *innerTrade) Pools() []types.Pool {
 	return t.pools
 }
 
-func (t *innerTrade) AmountOut() *big.Int {
-	return t.amountOut
+func (t *innerTrade) AmountOuts() []*big.Int {
+	return t.amountOuts
+}
+
+func (t *innerTrade) A2B() []bool {
+	return t.isA2B
 }

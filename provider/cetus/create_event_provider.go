@@ -14,7 +14,6 @@ import (
 type CetusPoolConfig struct {
 	CreatePoolEventPackage string
 	PoolCacheExpireSec     uint64
-	QuotePackageId         string
 	Quoter                 types.Quoter
 }
 

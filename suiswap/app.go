@@ -48,21 +48,17 @@ func (a *App) BestTradeExactIn(ctx context.Context, pools []types.Pool, coinIn, 
 		options.LimitTradeCount = 3
 	}
 
-	allPools, err := a.Pools(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if len(allPools) == 0 {
-		return []types.Trade{}, nil
-	}
-
-	trades := a.TokenRouter(allPools, coinIn.Address(), coinOut.Address(), amountIn)
+	trades := a.TokenRouter(pools, coinIn.Address(), coinOut.Address(), amountIn)
 	if len(trades) == 0 {
 		return []types.Trade{}, nil
 	}
 
 	sort.Slice(trades, func(i, j int) bool {
-		return trades[i].AmountOut().Cmp(trades[j].AmountOut()) >= 0
+		amountOutsI := trades[i].AmountOuts()
+		amountOutsJ := trades[j].AmountOuts()
+		outI := amountOutsI[len(amountOutsI)-1]
+		outJ := amountOutsJ[len(amountOutsJ)-1]
+		return outI.Cmp(outJ) >= 0
 	})
 
 	if len(trades) > options.LimitTradeCount {
@@ -118,7 +114,7 @@ func (a *App) TokenRouter(pools []types.Pool, coinIn string, coinOut string, amo
 	// filter nil outAmount trade
 	validTrade := make([]types.Trade, 0, len(trades))
 	for _, trade := range trades {
-		if trade.AmountOut() != nil {
+		if len(trade.AmountOuts()) > 0 {
 			validTrade = append(validTrade, trade)
 		}
 	}

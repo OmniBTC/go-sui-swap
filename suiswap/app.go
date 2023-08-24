@@ -13,6 +13,7 @@ import (
 type BestTradeOptions struct {
 	LimitTradeCount         int
 	DeepBookMustAtFirstStep bool
+	MiddleCoins             []string
 }
 
 type App struct {
@@ -94,6 +95,17 @@ func (a *App) TokenRouter(pools []types.Pool, coinIn string, coinOut string, amo
 			middleCoin = coinInPool.CoinA()
 		}
 		if util.EqualSuiCoinAddress(middleCoin, coinOut) {
+			continue
+		}
+
+		middleCoinCanUse := false
+		for _, tmpMiddleCoin := range options.MiddleCoins {
+			if util.EqualSuiCoinAddress(middleCoin, tmpMiddleCoin) {
+				middleCoinCanUse = true
+				break
+			}
+		}
+		if !middleCoinCanUse {
 			continue
 		}
 

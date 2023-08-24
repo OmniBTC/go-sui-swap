@@ -11,7 +11,8 @@ import (
 )
 
 type BestTradeOptions struct {
-	LimitTradeCount int
+	LimitTradeCount         int
+	DeepBookMustAtFirstStep bool
 }
 
 type App struct {
@@ -48,7 +49,7 @@ func (a *App) BestTradeExactIn(ctx context.Context, pools []types.Pool, coinIn, 
 		options.LimitTradeCount = 3
 	}
 
-	trades := a.TokenRouter(pools, coinIn.Address(), coinOut.Address(), amountIn)
+	trades := a.TokenRouter(pools, coinIn.Address(), coinOut.Address(), amountIn, options)
 	if len(trades) == 0 {
 		return []types.Trade{}, nil
 	}
@@ -68,7 +69,7 @@ func (a *App) BestTradeExactIn(ctx context.Context, pools []types.Pool, coinIn, 
 	return trades, nil
 }
 
-func (a *App) TokenRouter(pools []types.Pool, coinIn string, coinOut string, amountIn *big.Int) []types.Trade {
+func (a *App) TokenRouter(pools []types.Pool, coinIn string, coinOut string, amountIn *big.Int, options BestTradeOptions) []types.Trade {
 	trades := make([]types.Trade, 0)
 	wg := &sync.WaitGroup{}
 	coin2pools := make(map[string][]types.Pool)
@@ -97,6 +98,10 @@ func (a *App) TokenRouter(pools []types.Pool, coinIn string, coinOut string, amo
 		}
 
 		for _, coinOutPool := range coin2pools[middleCoin] {
+			// check deepbook must at first step
+			if coinOutPool.PoolType() == types.PoolTypeDeepBook && options.DeepBookMustAtFirstStep {
+				continue
+			}
 			if util.EqualSuiCoinAddress(coinOutPool.CoinA(), coinOut) ||
 				util.EqualSuiCoinAddress(coinOutPool.CoinB(), coinOut) {
 				trades = append(trades, newTrade(

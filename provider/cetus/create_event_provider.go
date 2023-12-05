@@ -44,7 +44,7 @@ func (p *createEventPoolProvider) Pools(ctx context.Context) ([]types.Pool, erro
 		return pools, nil
 	}
 	pools, err := p.fetchPoolByEvents(ctx)
-	if err != nil {
+	if err == nil {
 		p.poolCache.SetPoolsCache(pools)
 	}
 	return pools, err
